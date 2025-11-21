@@ -22,7 +22,7 @@ class BusinessElement(models.Model):
 
 class AccessRule(models.Model):
     role = models.ForeignKey(Role, on_delete=models.PROTECT)
-    # todo: element: BusinessElement — ссылка на элемент
+    element = models.ForeignKey(BusinessElement, on_delete=models.PROTECT)
     can_read = models.BooleanField(default=False)
     can_read_all = models.BooleanField(default=False)
     can_create = models.BooleanField(default=False)
