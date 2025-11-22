@@ -8,7 +8,7 @@ class Role(models.Model):
 class User(models.Model):
     full_name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    models.CharField(max_length=255)
+    password_hash = models.CharField(max_length=255)
     role_id = models.ForeignKey(Role, on_delete=models.PROTECT, null=True, blank=True)
     is_active = models.BooleanField(default=True)  # todo: (soft delete)
     created_at = models.DateTimeField(auto_now_add=True)
