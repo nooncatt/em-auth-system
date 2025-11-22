@@ -1,7 +1,7 @@
 # bcrypt (хэширование паролей) & PyJWT (генерация токенов)
 # проверка пароля
 # декодирование токена
-
+from hashlib import algorithms_available
 import bcrypt
 import jwt
 from datetime import datetime, timedelta
@@ -21,8 +21,24 @@ def verify_password(password: str, password_hash: str):
     return bcrypt.checkpw(raw_bytes, hash_bytes)
 
 
-# h = hash_password("123456")
-# print(h)
-#
-# print(check_password("123456", h))  # True
-# print(check_password("wrong", h))  # False
+JWT_ALGORITHM = "HS256"
+JWT_LIFETIME_MINUTES = 60  # token living time
+
+
+def create_access_token(user_id: int):
+    now = datetime.utcnow()
+    payload = {
+        "user_id": user_id,
+        "iat": now,
+        "exp": now + timedelta(minutes=JWT_LIFETIME_MINUTES),
+    }
+    token = jwt.encode(payload, settings.SECRET_KEY, algorithm=JWT_ALGORITHM)
+    return token  # str
+
+
+def decode_access_token(token: str):
+    """
+    Пока просто декодер. Middleware/permissions будем писать позже
+    """
+    payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    return payload
