@@ -74,27 +74,27 @@ Backend-приложение на **Django + DRF**, реализующее со�
 
 ## Структура проекта
 ```markdown
-em-auth-system/
+em-auth-system/      
 |
-|-- config/
-| |-- settings.py
-| |-- urls.py
-| -- middleware.py
+|-- config/          # Django-проект (global settings, URLs, middleware)
+| |-- settings.py    # настройки: БД, приложения, DRF, middleware
+| |-- urls.py        # глобальная маршрутизация всего API (подключает users и mockapp)
+| -- middleware.py   # JWT middleware (разбор токена, request.user)
 |
-|-- users/
-| |-- models.py
-| |-- serializers.py
-| |-- views.py
-| |-- urls.py
-| |-- services.py
-| -- permissions.py
+|-- users/           # приложение пользователей: модели, логин, регистрация, роли, права
+| |-- models.py      # модели БД
+| |-- serializers.py # DRF-сериализаторы: регистрация, логин, профиль
+| |-- views.py       # API-views
+| |-- urls.py        # маршрутизация приложения users
+| |-- services.py    # логика JWT + bcrypt (хэширование пароля, генерация токена)
+| -- permissions.py  # проверка прав доступа
 |
-|-- mockapp/
-| |-- views.py
-| -- urls.py
+|-- mockapp/         # mock-приложение для ресурсов
+| |-- views.py       # simple views: /products и /orders
+| -- urls.py         # маршруты ресурсов
 |
-|-- README.md
-|-- requirements.txt
+|-- README.md        
+|-- requirements.txt # cписок зависимостей
 -- manage.py
 ```
 ## Схема БД
