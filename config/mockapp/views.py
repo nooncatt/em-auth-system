@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+# Две простые ручки:
+# GET /api/products/
+# GET /api/orders/
