@@ -2,7 +2,7 @@
 # LoginSerializer
 # UserSerializer
 from rest_framework import serializers
-from .models import User
+from .models import User, Role
 from .services import hash_password, verify_password
 
 
@@ -28,18 +28,32 @@ class RegisterSerializer(serializers.Serializer):
         email = validated_data["email"]
         password = validated_data["password"]
 
+        # default role — user
+        default_role, _ = Role.objects.get_or_create(name="user")
+
         user = User.objects.create(
             full_name=full_name,
             email=email,
             password_hash=hash_password(password),
+            role=default_role,
         )
         return user
 
 
 class UserSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(source="role.name", read_only=True)
+
     class Meta:
         model = User
-        fields = ["id", "full_name", "email", "is_active", "created_at", "updated_at"]
+        fields = [
+            "id",
+            "full_name",
+            "email",
+            "role",
+            "is_active",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class LoginSerializer(serializers.Serializer):

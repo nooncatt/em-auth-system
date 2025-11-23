@@ -1,5 +1,4 @@
 from http import HTTPStatus
-from django.shortcuts import render
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,7 +10,7 @@ from .serializers import (
     LoginSerializer,
     MeUpdateSerializer,
 )
-from .services import create_access_token, decode_access_token
+from .services import create_access_token, decode_access_token, get_user_from_request
 
 
 # POST /api/auth/register
@@ -50,15 +49,9 @@ class LoginView(APIView):
 
 class MeView(APIView):
     def _get_current_user(self, request):
-        django_request = getattr(request, "_request", request)
-        user = getattr(django_request, "api_user", None)
-
+        user = get_user_from_request(request)
         print("VIEW USER:", user, type(user))
-
-        # check it's users.User, notAnonymousUser
-        if isinstance(user, User) and user.is_active:
-            return user
-        return None
+        return user
 
     # GET /api/me/
     def get(self, request):

@@ -6,6 +6,9 @@ import bcrypt
 import jwt
 from datetime import datetime, timedelta
 from django.conf import settings
+from typing import Optional
+from django.http import HttpRequest
+from .models import User
 
 
 def hash_password(password: str):
@@ -42,3 +45,46 @@ def decode_access_token(token: str):
     """
     payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[JWT_ALGORITHM])
     return payload
+
+
+def get_user_from_request(request: HttpRequest) -> Optional[User]:
+    """
+    Универсальный способ достать текущего пользователя:
+    1) сначала смотрим на request.user / request.api_user (middleware)
+    2) если там пусто – читаем Authorization и декодируем JWT.
+    """
+    django_request = getattr(request, "_request", request)
+
+    # 1. Если middleware уже положила пользователя
+    user = getattr(django_request, "user", None) or getattr(
+        django_request, "api_user", None
+    )
+    if isinstance(user, User) and user.is_active:
+        return user
+
+    # 2. Пробуем прочитать заголовок Authorization
+    auth_header = (
+        django_request.META.get("HTTP_AUTHORIZATION")
+        or django_request.headers.get("Authorization")
+        or ""
+    )
+    if not auth_header:
+        return None
+
+    parts = auth_header.split()
+    if len(parts) != 2 or parts[0].lower() != "bearer":
+        return None
+
+    token = parts[1].strip().strip('"')
+
+    try:
+        payload = decode_access_token(token)
+    except Exception as e:
+        print("JWT ERROR get_user_from_request:", e)
+        return None
+
+    user_id = payload.get("user_id")
+    if not user_id:
+        return None
+
+    return User.objects.filter(id=user_id, is_active=True).first()
