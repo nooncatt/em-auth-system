@@ -6,6 +6,7 @@ from mockapp.models import Task
 from mockapp.serializers import TaskSerializer
 from users.models import User, BusinessElement, AccessRule
 from users.permissions import AccessRulePermission
+from users.services import get_user_from_request
 
 
 # Две простые ручки:
@@ -14,25 +15,30 @@ from users.permissions import AccessRulePermission
 class TaskListCreateView(ListCreateAPIView):
     serializer_class = TaskSerializer
     permission_classes = [AccessRulePermission]
-    element_code = "task"  # will use in permission
+    element_code = "task"  # use in AccessRulePermission
 
     def get_queryset(self):
-        django_request = getattr(self.request, "_request", self.request)
-        user = getattr(django_request, "user", None)
+        # get current user
+        user = get_user_from_request(self.request)
 
         if not isinstance(user, User) or not user.is_active:
             return Task.objects.none()
 
-        try:
-            element = BusinessElement.objects.get(code="task")
-            rule = AccessRule.objects.get(role=user.role, element=element)
-        except (BusinessElement.DoesNotExist, AccessRule.DoesNotExist):
+        # try to get access rule for this user
+        # берём правило доступа тем же способом, что и в permissions
+        perm = AccessRulePermission()
+        rule = perm._get_rule(user, self)
+        if not rule:
             return Task.objects.none()
 
-        if rule.can_read_all:
-            return Task.objects.all()
+        qs = Task.objects.select_related("owner")
 
-        return Task.objects.filter(owner=user)
+        # если роль может читать все задачи — отдаём всё
+        if rule.can_read_all:
+            return qs
+
+        # иначе — только собственные задачи
+        return qs.filter(owner=user)
 
     def perform_create(self, serializer):
         django_request = getattr(self.request, "_request", self.request)
