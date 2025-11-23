@@ -146,7 +146,7 @@ AccessRule
 └─ can_delete_all
 ```
 
-## 🛠 Запуск проекта
+## Запуск проекта
 
 ```bash
 git clone <repo-url>
