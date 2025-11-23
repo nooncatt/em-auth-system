@@ -42,15 +42,21 @@ INSTALLED_APPS = [
     "rest_framework",
 ]
 
+REST_FRAMEWORK = {
+    # Мы аутентифицируемся сами через JWT в middleware,
+    # поэтому стандартные SessionAuthentication/BasicAuthentication не нужны
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+}
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "config.middleware.JWTAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "config.middleware.JWTAuthenticationMiddleware",
 ]
 ROOT_URLCONF = "config.urls"
 
