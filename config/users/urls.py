@@ -4,5 +4,8 @@ from . import views
 urlpatterns = [
     path("auth/register/", views.RegisterView.as_view()),
     path("auth/login/", views.LoginView.as_view()),
+    path("auth/logout/", views.LogoutView.as_view()),
     path("me/", views.MeView.as_view()),
+    path("access-rules/", views.AccessRuleListCreateView.as_view()),
+    path("access-rules/<int:pk>/", views.AccessRuleDetailView.as_view()),
 ]

@@ -75,3 +75,14 @@ class AccessRulePermission(BasePermission):
             return rule.can_delete and owner == user
 
         return False
+
+
+class IsAdminRole(BasePermission):
+    def has_permission(self, request, view):
+        user = get_user_from_request(request)
+
+        return (
+            isinstance(user, User)
+            and user.is_active
+            and getattr(user.role, "name", None) == "admin"
+        )  # True if admin

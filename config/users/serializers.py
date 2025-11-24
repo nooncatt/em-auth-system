@@ -2,7 +2,7 @@
 # LoginSerializer
 # UserSerializer
 from rest_framework import serializers
-from .models import User, Role
+from .models import User, Role, BusinessElement, AccessRule
 from .services import hash_password, verify_password
 
 
@@ -94,3 +94,48 @@ class MeUpdateSerializer(serializers.Serializer):
         if User.objects.filter(email=email_str).exclude(id=user.id).exists():
             raise serializers.ValidationError("User with this email already exists")
         return email_str
+
+
+class RoleShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ["id", "name"]
+
+
+class BusinessElementShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BusinessElement
+        fields = ["id", "code"]
+
+
+class AccessRuleSerializer(serializers.ModelSerializer):
+    role = RoleShortSerializer(read_only=True)
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        source="role",
+        write_only=True,
+    )
+
+    element = BusinessElementShortSerializer(read_only=True)
+    element_id = serializers.PrimaryKeyRelatedField(
+        queryset=BusinessElement.objects.all(),
+        source="element",
+        write_only=True,
+    )
+
+    class Meta:
+        model = AccessRule
+        fields = [
+            "id",
+            "role",
+            "role_id",
+            "element",
+            "element_id",
+            "can_read",
+            "can_read_all",
+            "can_create",
+            "can_update",
+            "can_update_all",
+            "can_delete",
+            "can_delete_all",
+        ]
