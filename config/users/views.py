@@ -1,14 +1,18 @@
 from http import HTTPStatus
+
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .models import User
+from .models import User, AccessRule
+from .permissions import IsAdminRole
 from .serializers import (
     RegisterSerializer,
     UserSerializer,
     LoginSerializer,
     MeUpdateSerializer,
+    AccessRuleSerializer,
 )
 from .services import create_access_token, decode_access_token, get_user_from_request
 
@@ -101,3 +105,22 @@ class MeView(APIView):
         user.is_active = False
         user.save()
         return Response(status=HTTPStatus.NO_CONTENT)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        # Для stateless JWT мы на сервере ничего не храним,
+        # поэтому просто говорим клиенту "ок, считай себя разлогиненным".
+        return Response({"detail": "Logged out"}, HTTPStatus.OK)
+
+
+class AccessRuleListCreateView(ListCreateAPIView):
+    queryset = AccessRule.objects.select_related("role", "element")
+    serializer_class = AccessRuleSerializer
+    permission_classes = [IsAdminRole]
+
+
+class AccessRuleDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = AccessRule.objects.select_related("role", "element")
+    serializer_class = AccessRuleSerializer
+    permission_classes = [IsAdminRole]
