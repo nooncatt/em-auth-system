@@ -1,11 +1,9 @@
 from http import HTTPStatus
-
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
-from .models import User, AccessRule
+from .models import AccessRule
 from .permissions import IsAdminRole
 from .serializers import (
     RegisterSerializer,
@@ -14,7 +12,7 @@ from .serializers import (
     MeUpdateSerializer,
     AccessRuleSerializer,
 )
-from .services import create_access_token, decode_access_token, get_user_from_request
+from .services import create_access_token, get_user_from_request
 
 
 # POST /api/auth/register

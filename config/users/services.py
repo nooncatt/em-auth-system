@@ -1,7 +1,6 @@
 # bcrypt (хэширование паролей) & PyJWT (генерация токенов)
 # проверка пароля
 # декодирование токена
-from hashlib import algorithms_available
 import bcrypt
 import jwt
 from datetime import datetime, timedelta

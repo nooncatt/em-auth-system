@@ -1,6 +1,3 @@
-# RegisterSerializer
-# LoginSerializer
-# UserSerializer
 from rest_framework import serializers
 from .models import User, Role, BusinessElement, AccessRule
 from .services import hash_password, verify_password
