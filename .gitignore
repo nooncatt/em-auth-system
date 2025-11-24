@@ -1,1 +1,10 @@
-TEC_SPEC.md
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual env
+authvenv/
+
+# IDE
+.idea/
+desktop.ini
